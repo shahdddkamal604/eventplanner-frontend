@@ -1,30 +1,30 @@
+
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import Signup from "./pages/Signup";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
+import "./App.css";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+ 
+  const [userEmail, setUserEmail] = useState("");
 
-  return (
-    <Router>
-      <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <nav>
-          <Link to="/signup" style={{ marginRight: "10px" }}>Signup</Link>
-          <Link to="/login" style={{ marginRight: "10px" }}>Login</Link>
-          {/* ✅ الرابط ده هيظهر بس لما المستخدم يكون Logged in */}
-          {isLoggedIn && <Link to="/home">Home</Link>}
-        </nav>
+  const handleLogin = (email) => {
+    setUserEmail(email);
+   
+  };
 
-        <Routes>
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/home" element={<Home />} />
-        </Routes>
-      </div>
-    </Router>
-  );
+  const handleLogout = () => {
+    setUserEmail("");
+    
+  };
+
+  
+  if (!userEmail) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  
+  return <HomePage userEmail={userEmail} onLogout={handleLogout} />;
 }
 
 export default App;
