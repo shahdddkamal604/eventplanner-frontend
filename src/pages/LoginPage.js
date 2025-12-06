@@ -90,7 +90,7 @@ function LoginPage({ onLogin }) {
             placeholder="Password"
             required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
           />
 
           <button className="primary-btn" disabled={loading}>

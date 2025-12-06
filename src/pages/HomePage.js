@@ -48,6 +48,25 @@ function HomePage({ userEmail, onLogout }) {
   const createEvent = async (e) => {
     e.preventDefault();
 
+  if (!newEvent.date) {
+    alert("Please choose a date");
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+
+  const selectedDate = new Date(newEvent.date); 
+
+  if (isNaN(selectedDate.getTime())) {
+    alert("Please choose a valid date");
+    return;
+  }
+
+  if (selectedDate < today) {
+    alert("You cannot create an event in the past");
+    return; 
+  }
     const body = { ...newEvent, organizer_email: userEmail };
 
     const res = await fetch(`${API_BASE}/events`, {
@@ -94,28 +113,37 @@ function HomePage({ userEmail, onLogout }) {
   };
 
   const inviteUser = async (eventId) => {
-    const inviteEmail = inviteEmailByEvent[eventId];
-    if (!inviteEmail) {
-      alert("Please enter an email to invite");
-      return;
-    }
+  let inviteEmail = inviteEmailByEvent[eventId]; 
 
-    const body = { event_id: eventId, email: inviteEmail };
+  if (!inviteEmail) {
+    alert("Please enter an email to invite");
+    return;
+  }
 
-    const res = await fetch(`${API_BASE}/events/invite`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  inviteEmail = inviteEmail.trim();
 
-    const data = await res.json();
-    if (!res.ok) {
-      alert(data.message || "Could not send invitation");
-    } else {
-      alert(data.message || "Invitation sent");
-      setInviteEmailByEvent((prev) => ({ ...prev, [eventId]: "" }));
-    }
-  };
+  if (inviteEmail.toLowerCase() === userEmail.toLowerCase()) {
+    alert("You cannot invite yourself to your own event");
+    return;
+  }
+
+  const body = { event_id: eventId, email: inviteEmail };
+
+  const res = await fetch(`${API_BASE}/events/invite`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    alert(data.message || "Could not send invitation");
+  } else {
+    alert(data.message || "Invitation sent");
+    setInviteEmailByEvent((prev) => ({ ...prev, [eventId]: "" }));
+  }
+};
+
 
   const loadAttendees = async (eventId) => {
     const res = await fetch(`${API_BASE}/events/responses/${eventId}`);
